@@ -17,6 +17,20 @@ module.exports = class MobyDick {
   }
 
   newLinesToSpaces() {
-    this.fileContents.replace( /(\r?\n|\r)+/g, ' ' );
+    return this.fileContents.replace( /(\r?\n|\r)+/g, ' ' );
+  }
+
+  createCountObject() {
+    let cleanString = this.newLinesToSpaces();
+    let wordArray = cleanString.split( ' ' );
+    let countObject = {};
+
+    for( var i=0; i<wordArray.length; i++ ) {
+      if( ! countObject.hasOwnProperty( wordArray[i].toLowerCase() ) ) {
+        countObject[wordArray[i].toLowerCase()] = 0;
+      }
+    }
+
+    return countObject;
   }
 }
