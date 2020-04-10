@@ -60,13 +60,6 @@ describe( 'File Reading', function() {
     expect( results ).to.equal( 'This is a sTring And this is a new line' );
   } );
 
-  it( 'Create word count object', function() {
-    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
-    let countObject = md.createCountObject();
-
-    expect( countObject ).to.eql( { this: 0, is: 0, a: 0, string: 0, and: 0, new: 0, line: 0 } );
-  } );
-
   it( 'Create stopword array', function() {
     let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
     let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'about a above across after again' );
@@ -79,6 +72,20 @@ describe( 'File Reading', function() {
     let data = checkAndReadFileStub( 'This: is some "day-To-day" text; Cool?' );
     let allWords = md.getAllWords();
 
-    expect( allWords ).to.eql( ['This', 'is', 'some', 'day-To-day', 'text', 'Cool'] );
+    expect( allWords ).to.eql( ['this', 'is', 'some', 'day-to-day', 'text', 'cool'] );
+  } );
+
+  it( 'Create word count object', function() {
+    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
+    let countObject = md.createCountObject();
+
+    expect( countObject ).to.eql( { this: 0, is: 0, a: 0, string: 0, and: 0, new: 0, line: 0 } );
+  } );
+
+  it( 'Create word count object excluding stopwords', function() {
+    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
+    let countObject = md.createCountObject( ['string', 'and', 'new'] );
+
+    expect( countObject ).to.eql( { this: 0, is: 0, a: 0, line: 0 } );
   } );
 } );

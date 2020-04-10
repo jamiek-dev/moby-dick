@@ -28,21 +28,38 @@ module.exports = class MobyDick {
     return this.stopWords;
   }
 
-  // Need a function to explode file contents into only words
   getAllWords( str ) {
     let cleanString = this.newLinesToSpaces();
     let regEx = /[a-zA-Z'-]+/g;
+    let allWords = cleanString.match( regEx );
 
-    return cleanString.match( regEx );
+    // Let's lowercase all of the words
+    // -------------------------------------------------------------
+    for( var i=0; i<allWords.length; i++ ) {
+      allWords[i] = allWords[i].toLowerCase();
+    }
+
+    return allWords;
   }
 
-  createCountObject() {
+  createCountObject( optionalStopWords ) {
+    let stopWords = optionalStopWords || null;
     let wordArray = this.getAllWords();
     let countObject = {};
 
-    for( var i=0; i<wordArray.length; i++ ) {
-      if( ! countObject.hasOwnProperty( wordArray[i].toLowerCase() ) ) {
-        countObject[wordArray[i].toLowerCase()] = 0;
+    if( stopWords != null && stopWords.length ) {
+      for( var i=0; i<wordArray.length; i++ ) {
+        if( stopWords.indexOf( wordArray[i] ) == -1 ) {
+          if( ! countObject.hasOwnProperty( wordArray[i] ) ) {
+            countObject[wordArray[i]] = 0;
+          }
+        }
+      }
+    } else {
+      for( var i=0; i<wordArray.length; i++ ) {
+        if( ! countObject.hasOwnProperty( wordArray[i].toLowerCase() ) ) {
+          countObject[wordArray[i].toLowerCase()] = 0;
+        }
       }
     }
 
