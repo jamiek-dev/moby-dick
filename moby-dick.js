@@ -1,7 +1,7 @@
 module.exports = class MobyDick {
   constructor() {
-    this.fileContents = '';
-    this.stopWords = [];
+    // this.fileContents = '';
+    // this.stopWords = [];
   }
 
   getThatFile( file ) {
@@ -9,12 +9,10 @@ module.exports = class MobyDick {
     const path = file;
 
     if( ! fs.existsSync( path ) ) {
-      throw new Error();
+      throw new Error( 'File does not exist' );
     }
 
-    this.fileContents = fs.readFileSync( path, 'utf8' );
-
-    return this.fileContents;
+    return fs.readFileSync( path, 'utf8' );
   }
 
   newLinesToSpaces( str ) {
@@ -25,26 +23,28 @@ module.exports = class MobyDick {
     let stopWordFileContents = this.getThatFile( file );
     let wordArray = this.getAllWords( stopWordFileContents );
 
-    this.stopWords = [...new Set( wordArray )];
+    return [...new Set( wordArray )];
   }
 
   getAllWords( str ) {
     let cleanString = this.newLinesToSpaces( str );
     let regEx = /[a-zA-Z'-]+/g;
     let allWords = cleanString.match( regEx );
+    let allLowercaseWords = [];
 
     // Let's lowercase all of the words
     // -------------------------------------------------------------
     for( var i=0; i<allWords.length; i++ ) {
-      allWords[i] = allWords[i].toLowerCase();
+      allLowercaseWords.push( allWords[i].toLowerCase() );
     }
 
-    return allWords;
+    return allLowercaseWords;
   }
 
-  createCountObject() {
-    let stopWords = this.stopWords;
-    let wordArray = this.getAllWords( this.fileContents );
+  createCountObject( wordsFile, stopWordsFile ) {
+    let stopWords = stopWordsFile != undefined ? this.createStopWords( stopWordsFile ) : [];
+    let allWords = this.getThatFile( wordsFile );
+    let wordArray = this.getAllWords( allWords );
     let countObject = {};
 
     if( stopWords.length ) {
