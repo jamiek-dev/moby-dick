@@ -1,6 +1,7 @@
 module.exports = class MobyDick {
   constructor() {
     this.fileContents = '';
+    this.stopWords = [];
   }
 
   getThatFile( file ) {
@@ -20,9 +21,12 @@ module.exports = class MobyDick {
     return this.fileContents.replace( /(\r?\n|\r)+/g, ' ' );
   }
 
-  // createStopWords() {
-  //
-  // }
+  createStopWords( file ) {
+    let stopWordFileContents = this.getThatFile( file );
+    this.stopWords = this.getAllWords( stopWordFileContents );
+
+    return this.stopWords;
+  }
 
   // Need a function to explode file contents into only words
   getAllWords( str ) {

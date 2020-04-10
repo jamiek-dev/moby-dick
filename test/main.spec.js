@@ -7,6 +7,19 @@ const md = new MobyDick();
 const fs = require( 'fs' );
 chai.use( sinonChai );
 
+/**
+ * Set up some repeating stubs and get file text
+ * @param   string | readFileResults | Stub results to return from readFileSync
+ * @return  string | data | File contents string
+ */
+function checkAndReadFileStub( readFileResults ) {
+  let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
+  let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( readFileResults );
+  let data = md.getThatFile( 'foo.txt' );
+
+  return data;
+}
+
 // Successfully read from a file
 // -------------------------------------------------------------------------------
 describe( 'File validation', function() {
@@ -29,9 +42,7 @@ describe( 'File validation', function() {
   } );
 
   it( 'Returns the contents of a file', function() {
-    let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'abcdefg' );
-    let results = md.getThatFile( 'foo.txt' );
+    let results = checkAndReadFileStub( 'abcdefg' );
 
     expect( results ).to.equal( 'abcdefg' );
   } );
@@ -43,36 +54,29 @@ describe( 'File Reading', function() {
   });
 
   it( 'Replace new lines with spaces', function() {
-    let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'This is a sTring\nAnd this is a\n\nnew line' );
-    let data = md.getThatFile( 'foo.txt' );
+    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
     let results = md.newLinesToSpaces();
 
     expect( results ).to.equal( 'This is a sTring And this is a new line' );
   } );
 
   it( 'Create word count object', function() {
-    let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'This is a sTring\nAnd this is a\n\nnew line' );
-    let data = md.getThatFile( 'foo.txt' );
+    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
     let countObject = md.createCountObject();
 
     expect( countObject ).to.eql( { this: 0, is: 0, a: 0, string: 0, and: 0, new: 0, line: 0 } );
   } );
 
-  // it( 'Create stopword array', function() {
-  //   let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-  //   let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'Three words here' );
-  //   let data = md.getThatFile( 'foo.txt' );
-  //   let stopWords = md.createStopWords();
-  //
-  //   expect( stopWords ).to.eql( ['three', 'words', 'here'] );
-  // } );
-
-  it( 'Match only words in string', function() {
+  it( 'Create stopword array', function() {
     let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'This: is some "day-To-day" text; Cool?' );
-    let data = md.getThatFile( 'foo.txt' );
+    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'about a above across after again' );
+    let stopWords = md.createStopWords( 'foo.txt' );
+
+    expect( stopWords ).to.eql( ['about', 'a', 'above', 'across', 'after', 'again'] );
+  } );
+
+  it( 'Create word array from string', function() {
+    let data = checkAndReadFileStub( 'This: is some "day-To-day" text; Cool?' );
     let allWords = md.getAllWords();
 
     expect( allWords ).to.eql( ['This', 'is', 'some', 'day-To-day', 'text', 'Cool'] );
