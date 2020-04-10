@@ -36,3 +36,18 @@ describe( 'File validation', function() {
     expect( results ).to.equal( 'abcdefg' );
   } );
 } );
+
+describe( 'File Reading', function() {
+  afterEach(function () {
+    sinon.restore();
+  });
+
+  it( 'Replace new lines with spaces', function() {
+    let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
+    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'This is a sTring\nAnd this is a\n\nnew line.' );
+    let data = md.getThatFile( 'foo.txt' );
+    let results = md.newLinesToSpaces();
+
+    expect( results ).to.equal( 'This is a sTring And this is a new line.' );
+  } );
+} );
