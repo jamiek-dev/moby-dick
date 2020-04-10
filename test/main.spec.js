@@ -24,13 +24,13 @@ beforeEach( function() {
   md = new MobyDick();
 } );
 
+afterEach(function () {
+  sinon.restore();
+});
+
 // Successfully read from a file
 // -------------------------------------------------------------------------------
 describe( 'File validation', function() {
-  afterEach(function () {
-    sinon.restore();
-  });
-
   it( 'Check if file exists', function() {
     let fsStub = sinon.stub(fs, 'existsSync').returns( true );
     let readStub = sinon.stub( fs, 'readFileSync' ).returns( 'abc' );
@@ -44,18 +44,14 @@ describe( 'File validation', function() {
 
     expect( () => md.getThatFile('foo.txt') ).to.throw();
   } );
+} );
 
+describe( 'File Reading', function() {
   it( 'Returns the contents of a file', function() {
     let results = checkAndReadFileStub( 'abcdefg' );
 
     expect( results ).to.equal( 'abcdefg' );
   } );
-} );
-
-describe( 'File Reading', function() {
-  afterEach(function () {
-    sinon.restore();
-  });
 
   it( 'Replace new lines with spaces', function() {
     let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
