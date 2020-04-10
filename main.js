@@ -25,15 +25,15 @@ module.exports = class MobyDick {
   // }
 
   // Need a function to explode file contents into only words
-  getAllWords() {
-    let regEx = /\w+([\S]+)?\w+/g;
+  getAllWords( str ) {
+    let cleanString = this.newLinesToSpaces();
+    let regEx = /[a-zA-Z'-]+/g;
 
-    return this.fileContents.match( regEx );
+    return cleanString.match( regEx );
   }
 
   createCountObject() {
-    let cleanString = this.newLinesToSpaces();
-    let wordArray = cleanString.split( ' ' );
+    let wordArray = this.getAllWords();
     let countObject = {};
 
     for( var i=0; i<wordArray.length; i++ ) {
