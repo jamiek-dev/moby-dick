@@ -20,6 +20,17 @@ module.exports = class MobyDick {
     return this.fileContents.replace( /(\r?\n|\r)+/g, ' ' );
   }
 
+  // createStopWords() {
+  //
+  // }
+
+  // Need a function to explode file contents into only words
+  getAllWords() {
+    let regEx = /\w+([\S]+)?\w+/g;
+
+    return this.fileContents.match( regEx );
+  }
+
   createCountObject() {
     let cleanString = this.newLinesToSpaces();
     let wordArray = cleanString.split( ' ' );

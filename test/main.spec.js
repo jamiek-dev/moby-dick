@@ -59,4 +59,22 @@ describe( 'File Reading', function() {
 
     expect( countObject ).to.eql( { this: 0, is: 0, a: 0, string: 0, and: 0, new: 0, line: 0 } );
   } );
+
+  // it( 'Create stopword array', function() {
+  //   let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
+  //   let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'Three words here' );
+  //   let data = md.getThatFile( 'foo.txt' );
+  //   let stopWords = md.createStopWords();
+  //
+  //   expect( stopWords ).to.eql( ['three', 'words', 'here'] );
+  // } );
+
+  it( 'Match only words in string', function() {
+    let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
+    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'This: is some "day-To-day" text; Cool?' );
+    let data = md.getThatFile( 'foo.txt' );
+    let allWords = md.getAllWords();
+
+    expect( allWords ).to.eql( ['This', 'is', 'some', 'day-To-day', 'text', 'Cool'] );
+  } );
 } );
