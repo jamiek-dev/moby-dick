@@ -1,11 +1,11 @@
-const MobyDick = require( '../main.js' );
+const MobyDick = require( '../moby-dick.js' );
 const expect = require( 'chai' ).expect;
 const sinon = require( 'sinon' );
 const sinonChai = require( 'sinon-chai' );
 const chai = require("chai");
-const md = new MobyDick();
 const fs = require( 'fs' );
 chai.use( sinonChai );
+let md;
 
 /**
  * Set up some repeating stubs and get file text
@@ -19,6 +19,10 @@ function checkAndReadFileStub( readFileResults ) {
 
   return data;
 }
+
+beforeEach( function() {
+  md = new MobyDick();
+} );
 
 // Successfully read from a file
 // -------------------------------------------------------------------------------
@@ -55,22 +59,22 @@ describe( 'File Reading', function() {
 
   it( 'Replace new lines with spaces', function() {
     let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
-    let results = md.newLinesToSpaces();
+    let results = md.newLinesToSpaces( data );
 
     expect( results ).to.equal( 'This is a sTring And this is a new line' );
   } );
 
   it( 'Create stopword array', function() {
     let fsStub = sinon.stub( fs, 'existsSync' ).withArgs( 'foo.txt' ).returns( true );
-    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'about a above across after again' );
-    let stopWords = md.createStopWords( 'foo.txt' );
+    let readStub = sinon.stub( fs, 'readFileSync' ).withArgs( 'foo.txt', 'utf8' ).returns( 'about a above across after again again' );
+    md.createStopWords( 'foo.txt' );
 
-    expect( stopWords ).to.eql( ['about', 'a', 'above', 'across', 'after', 'again'] );
+    expect( md.stopWords ).to.eql( ['about', 'a', 'above', 'across', 'after', 'again'] );
   } );
 
   it( 'Create word array from string', function() {
     let data = checkAndReadFileStub( 'This: is some "day-To-day" text; Cool?' );
-    let allWords = md.getAllWords();
+    let allWords = md.getAllWords( data );
 
     expect( allWords ).to.eql( ['this', 'is', 'some', 'day-to-day', 'text', 'cool'] );
   } );
@@ -79,13 +83,14 @@ describe( 'File Reading', function() {
     let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
     let countObject = md.createCountObject();
 
-    expect( countObject ).to.eql( { this: 0, is: 0, a: 0, string: 0, and: 0, new: 0, line: 0 } );
+    expect( countObject ).to.eql( { this: 2, is: 2, a: 2, string: 1, and: 1, new: 1, line: 1 } );
   } );
 
-  it( 'Create word count object excluding stopwords', function() {
-    let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
-    let countObject = md.createCountObject( ['string', 'and', 'new'] );
-
-    expect( countObject ).to.eql( { this: 0, is: 0, a: 0, line: 0 } );
-  } );
+  // it( 'Create word count object excluding stopwords', function() {
+  //   let data = checkAndReadFileStub( 'This is a sTring\nAnd this is a\n\nnew line' );
+  //   md.createStopWords( 'foo.txt' );
+  //   let countObject = md.createCountObject();
+  //
+  //   expect( countObject ).to.eql( {this: 2, is: 2, string: 1, and: 1, new: 1, line: 1} );
+  // } );
 } );
